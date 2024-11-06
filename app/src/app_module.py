@@ -3,9 +3,14 @@ from .config import config
 from .app_controller import AppController
 from .app_service import AppService
 from src.users.users_module import UsersModule
+from src.ejemplos.ejemplos_module import EjemplosModule
 
 
-@Module(imports=[UsersModule], controllers=[AppController], providers=[AppService])
+@Module(
+    imports=[UsersModule, EjemplosModule],
+    controllers=[AppController],
+    providers=[AppService],
+)
 class AppModule:
     pass
 
