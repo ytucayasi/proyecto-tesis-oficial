@@ -11,9 +11,7 @@ class UsersService:
 
     @async_db_request_handler
     async def add_users(self, users: Users, session: AsyncSession):
-        new_users = UsersEntity(
-            **users.dict()
-        )
+        new_users = UsersEntity(**users.dict())
         session.add(new_users)
         await session.commit()
         return new_users.name
@@ -29,10 +27,8 @@ class UsersService:
         query = select(UsersEntity).where(UsersEntity.id == user_id)
         result = await session.execute(query)
         user = result.scalar_one_or_none()
-        
         if user is None:
             raise HTTPException(status_code=404, detail=f"User with id {user_id} not found")
-            
         return user
 
     @async_db_request_handler
@@ -40,39 +36,25 @@ class UsersService:
         query = select(UsersEntity).where(UsersEntity.name == name)
         result = await session.execute(query)
         user = result.scalar_one_or_none()
-        
         if user is None:
             raise HTTPException(status_code=404, detail=f"User with name {name} not found")
-            
         return user
 
     @async_db_request_handler
     async def update_user(self, user_id: int, user_update: UpdateUser, session: AsyncSession):
-        # Primero verificamos si el usuario existe
         user = await self.get_user_by_id(user_id, session)
-        
-        # Filtramos solo los campos que no son None
         update_data = user_update.dict(exclude_unset=True)
-        
         if not update_data:
             raise HTTPException(status_code=400, detail="No fields to update")
-        
-        # Actualizamos el usuario
         query = update(UsersEntity).where(UsersEntity.id == user_id).values(**update_data)
         await session.execute(query)
         await session.commit()
-        
-        # Retornamos el usuario actualizado
         return await self.get_user_by_id(user_id, session)
 
     @async_db_request_handler
     async def delete_user(self, user_id: int, session: AsyncSession):
-        # Primero verificamos si el usuario existe
         await self.get_user_by_id(user_id, session)
-        
-        # Eliminamos el usuario
         query = delete(UsersEntity).where(UsersEntity.id == user_id)
         await session.execute(query)
         await session.commit()
-        
         return {"message": f"User with id {user_id} has been deleted"}
