@@ -1,0 +1,3 @@
+implementar Angular 17
+implementar MongoDB
+implementar Redis

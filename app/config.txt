@@ -1,0 +1,11 @@
+# Desarrollo
+docker-compose up -d
+
+# Producción
+docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+
+# Crear backup
+docker-compose exec db pg_dump -U $POSTGRESQL_USER -d $POSTGRESQL_DB_NAME > ./backups/backup_$(date +%Y%m%d).sql
+
+# Restaurar backup
+docker-compose exec -T db psql -U $POSTGRESQL_USER -d $POSTGRESQL_DB_NAME < ./backups/backup_YYYYMMDD.sql
