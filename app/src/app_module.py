@@ -6,10 +6,31 @@ from src.users.users_module import UsersModule
 from src.ejemplos.ejemplos_module import EjemplosModule
 from src.personas.personas_module import PersonasModule
 from src.facultades.facultades_module import FacultadesModule
+from src.niveles.niveles_module import NivelesModule
+from src.escuelas_profesionales.escuelas_profesionales_module import (
+    EscuelasProfesionalesModule,
+)
+from src.planes_academicos.planes_academicos_module import PlanesAcademicosModule
+from src.programas.programas_module import ProgramasModule
+from src.ciclos.ciclos_module import CiclosModule
+from src.cursos.cursos_module import CursosModule
+from src.ciclos_cursos.ciclos_cursos_module import CiclosCursosModule
 
 
 @Module(
-    imports=[UsersModule, EjemplosModule, PersonasModule, FacultadesModule],
+    imports=[
+        UsersModule,
+        EjemplosModule,
+        PersonasModule,
+        FacultadesModule,
+        NivelesModule,
+        EscuelasProfesionalesModule,
+        PlanesAcademicosModule,
+        ProgramasModule,
+        CiclosModule,
+        CursosModule,
+        CiclosCursosModule,
+    ],
     controllers=[AppController],
     providers=[AppService],
 )
