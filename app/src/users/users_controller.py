@@ -33,4 +33,4 @@ class UsersController:
     @Delete("/{user_id}")
     async def delete_user(self, user_id: int, session: AsyncSession = Depends(config.get_db)):
         return await self.users_service.delete_user(user_id, session)
- 
+  
