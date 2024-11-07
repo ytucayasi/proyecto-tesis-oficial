@@ -1,14 +1,14 @@
-# secuencia_aprendizaje_entity.py
 from src.config import config
 from sqlalchemy import Integer, String, DateTime, ForeignKey, Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
-import enum
-from typing import TYPE_CHECKING
+import enum  # Agregada esta importación
+from typing import List, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from src.sesion_aprendizaje.sesion_aprendizaje_entity import SesionAprendizajeEntity
     from src.tipo_secuencia.tipo_secuencia_entity import TipoSecuenciaEntity
+    from src.generacion_recurso.generacion_recurso_entity import GeneracionRecursoEntity
 
 class EstadoRecursos(str, enum.Enum):
     COMPLETO = 'completo'
@@ -68,13 +68,19 @@ class SecuenciaAprendizajeEntity(config.Base):
     # Relaciones
     sesion_aprendizaje: Mapped["SesionAprendizajeEntity"] = relationship(
         "SesionAprendizajeEntity",
-        back_populates="secuencias_aprendizaje",  # Nombre corregido aquí
+        back_populates="secuencias_aprendizaje",
         lazy="select"
     )
 
     tipo_secuencia: Mapped["TipoSecuenciaEntity"] = relationship(
         "TipoSecuenciaEntity",
         lazy="select"
+    )
+
+    generaciones_recurso: Mapped[List["GeneracionRecursoEntity"]] = relationship(
+        "GeneracionRecursoEntity",
+        back_populates="secuencia_aprendizaje",
+        cascade="all, delete-orphan"
     )
 
     def __repr__(self) -> str:

@@ -1,3 +1,4 @@
 pynest-api==0.3.1
 asyncpg==0.29.0
 python-dotenv
+pydantic[email]

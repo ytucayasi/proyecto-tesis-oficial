@@ -1,55 +1,63 @@
-# secuencia_aprendizaje_entity.py
+# generacion_recurso_entity.py
 from src.config import config
 from sqlalchemy import Integer, String, DateTime, ForeignKey, Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 import enum
-from typing import TYPE_CHECKING
+from typing import List, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from src.sesion_aprendizaje.sesion_aprendizaje_entity import SesionAprendizajeEntity
-    from src.tipo_secuencia.tipo_secuencia_entity import TipoSecuenciaEntity
+    from src.input.input_entity import InputEntity
+    from src.diseno_pdf.diseno_pdf_entity import DisenoPdfEntity
+    from src.secuencia_aprendizaje.secuencia_aprendizaje_entity import SecuenciaAprendizajeEntity
+    from src.historial_recurso.historial_recurso_entity import HistorialRecursoEntity
 
-class EstadoRecursos(str, enum.Enum):
-    COMPLETO = 'completo'
-    PARCIAL = 'parcial'
-    NINGUNO = 'ninguno'
+class TipoDocumento(str, enum.Enum):
+    WORD = 'word'
+    PDF = 'pdf'
+    PPT = 'ppt'
 
-class SecuenciaAprendizajeEntity(config.Base):
-    __tablename__ = "secuencia_aprendizaje"
+class GeneracionRecursoEntity(config.Base):
+    __tablename__ = "generacion_recurso"
 
-    secuencia_aprendizaje_id: Mapped[int] = mapped_column(
+    generacion_recurso_id: Mapped[int] = mapped_column(
         Integer, 
         primary_key=True, 
         autoincrement=True
     )
     
-    sesion_aprendizaje_id: Mapped[int] = mapped_column(
+    input_id: Mapped[int] = mapped_column(
         Integer,
-        ForeignKey("sesion_aprendizaje.sesion_aprendizaje_id", ondelete="CASCADE"),
+        ForeignKey("input.input_id", ondelete="CASCADE"),
         nullable=False
     )
     
-    tipo_secuencia_id: Mapped[int] = mapped_column(
+    diseno_id: Mapped[int] = mapped_column(
         Integer,
-        ForeignKey("tipo_secuencia.tipo_secuencia_id", ondelete="CASCADE"),
+        ForeignKey("diseno_pdf.diseno_pdf_id", ondelete="CASCADE"),
         nullable=False
     )
     
-    link_recurso: Mapped[str] = mapped_column(
-        String(500), 
-        nullable=True
+    secuencia_aprendizaje_id: Mapped[int] = mapped_column(
+        Integer,
+        ForeignKey("secuencia_aprendizaje.secuencia_aprendizaje_id", ondelete="CASCADE"),
+        nullable=False
     )
     
-    link_rubrica: Mapped[str] = mapped_column(
-        String(500), 
-        nullable=True
+    usuario_id: Mapped[int] = mapped_column(
+        Integer,
+        ForeignKey("usuarios.usuario_id", ondelete="CASCADE"),
+        nullable=False
     )
     
-    estado_recursos: Mapped[EstadoRecursos] = mapped_column(
-        Enum(EstadoRecursos),
-        nullable=False,
-        default=EstadoRecursos.NINGUNO
+    numero_paginas: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False
+    )
+    
+    tipo_documento: Mapped[TipoDocumento] = mapped_column(
+        Enum(TipoDocumento, name='tipodocumento', create_type=False),
+        nullable=False
     )
     
     created_at: Mapped[datetime] = mapped_column(
@@ -65,17 +73,31 @@ class SecuenciaAprendizajeEntity(config.Base):
         nullable=False
     )
 
-    # Relaciones
-    sesion_aprendizaje: Mapped["SesionAprendizajeEntity"] = relationship(
-        "SesionAprendizajeEntity",
-        back_populates="secuencias_aprendizaje",  # Nombre corregido aquí
+    # Relaciones existentes
+    input: Mapped["InputEntity"] = relationship(
+        "InputEntity",
+        back_populates="generaciones_recurso",
         lazy="select"
     )
 
-    tipo_secuencia: Mapped["TipoSecuenciaEntity"] = relationship(
-        "TipoSecuenciaEntity",
+    diseno: Mapped["DisenoPdfEntity"] = relationship(
+        "DisenoPdfEntity",
+        back_populates="generaciones_recurso",
         lazy="select"
+    )
+
+    secuencia_aprendizaje: Mapped["SecuenciaAprendizajeEntity"] = relationship(
+        "SecuenciaAprendizajeEntity",
+        back_populates="generaciones_recurso",
+        lazy="select"
+    )
+
+    # Nueva relación con HistorialRecurso
+    historiales: Mapped[List["HistorialRecursoEntity"]] = relationship(
+        "HistorialRecursoEntity",
+        back_populates="generacion_recurso",
+        cascade="all, delete-orphan"
     )
 
     def __repr__(self) -> str:
-        return f"SecuenciaAprendizaje(id={self.secuencia_aprendizaje_id})"
+        return f"GeneracionRecurso(id={self.generacion_recurso_id}, tipo={self.tipo_documento})"

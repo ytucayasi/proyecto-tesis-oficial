@@ -4,7 +4,11 @@ from sqlalchemy import Integer, String, Text, Enum, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 import enum
-from typing import List
+from typing import List, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from src.unidad.unidad_entity import UnidadEntity
+    from src.curso_usuario.curso_usuario_entity import CursoUsuarioEntity
 
 class EstadoRecursosEnum(str, enum.Enum):
     completo = "completo"
@@ -30,12 +34,18 @@ class Curso(config.Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    # Agregar la relación con unidades
+    # Relaciones
     unidades: Mapped[List["UnidadEntity"]] = relationship(
         "UnidadEntity",
         back_populates="curso",
         cascade="all, delete-orphan"
     )
 
+    usuarios: Mapped[List["CursoUsuarioEntity"]] = relationship(
+        "CursoUsuarioEntity",
+        back_populates="curso",
+        cascade="all, delete-orphan"
+    )
+
     def __repr__(self) -> str:
-        return f"Curso(curso_id={self.curso_id}, nombre='{self.nombre}')"
+        return f"Curso(id={self.curso_id}, nombre='{self.nombre}')"

@@ -1,9 +1,11 @@
-# input_entity.py
 from src.config import config
 from sqlalchemy import Integer, String, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
-from typing import List
+from typing import List, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from src.generacion_recurso.generacion_recurso_entity import GeneracionRecursoEntity
 
 class InputEntity(config.Base):
     __tablename__ = "input"
@@ -37,13 +39,12 @@ class InputEntity(config.Base):
         nullable=False
     )
 
-    # Relación usando strings para evitar referencias circulares
-    #generacion_recursos = relationship(
-    #    "GeneracionRecursoEntity", 
-    #    back_populates="input",
-    #    lazy="select",
-    #    cascade="all, delete-orphan"
-    #)
+    # Relación con GeneracionRecurso
+    generaciones_recurso: Mapped[List["GeneracionRecursoEntity"]] = relationship(
+        "GeneracionRecursoEntity",
+        back_populates="input",
+        cascade="all, delete-orphan"
+    )
 
-    #def __repr__(self) -> str:
-    #    return f"Input(input_id={self.input_id}, nombre='{self.nombre}')"
+    def __repr__(self) -> str:
+        return f"Input(input_id={self.input_id}, nombre='{self.nombre}')"
