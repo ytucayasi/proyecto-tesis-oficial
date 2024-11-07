@@ -2,8 +2,6 @@ from nest.core import PyNestFactory, Module
 from .config import config
 from .app_controller import AppController
 from .app_service import AppService
-from src.users.users_module import UsersModule
-from src.ejemplos.ejemplos_module import EjemplosModule
 from src.personas.personas_module import PersonasModule
 from src.usuarios.usuarios_module import UsuariosModule
 from src.usuario_roles.usuario_roles_module import UsuarioRolesModule
@@ -20,8 +18,6 @@ from src.equivalencia_replicadas.equivalencia_replicadas_module import (
 
 @Module(
     imports=[
-        UsersModule,
-        EjemplosModule,
         PersonasModule,
         UsuariosModule,
         UsuarioRolesModule,
