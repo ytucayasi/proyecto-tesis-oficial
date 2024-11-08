@@ -1,7 +1,7 @@
 version: '3.8'
 services:
-  web:
-    build: .
+  pynest-app:
+    build: ./app
     image: pynest-app
     ports:
       - "8000:8000"
@@ -12,7 +12,24 @@ services:
       - POSTGRESQL_PASSWORD=${POSTGRESQL_PASSWORD}
       - POSTGRESQL_PORT=${POSTGRESQL_PORT}
     volumes:
-      - .:/app
+      - ./app:/app
+    depends_on:
+      db:
+        condition: service_healthy
+
+  pynest-app-genai:
+    build: ./app-genai
+    image: pynest-app-genai
+    ports:
+      - "8001:8000"
+    environment:
+      - POSTGRESQL_HOST=${POSTGRESQL_HOST}
+      - POSTGRESQL_DB_NAME=${POSTGRESQL_DB_NAME}
+      - POSTGRESQL_USER=${POSTGRESQL_USER}
+      - POSTGRESQL_PASSWORD=${POSTGRESQL_PASSWORD}
+      - POSTGRESQL_PORT=${POSTGRESQL_PORT}
+    volumes:
+      - ./app-genai:/app
     depends_on:
       db:
         condition: service_healthy

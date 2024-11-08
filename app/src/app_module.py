@@ -35,7 +35,6 @@ from src.equivalencia_replicadas.equivalencia_replicadas_module import (
 class AppModule:
     pass
 
-
 app = PyNestFactory.create(
     AppModule,
     description="This is my Async PyNest app.",
@@ -44,7 +43,6 @@ app = PyNestFactory.create(
     debug=True,
 )
 http_server = app.get_server()
-
 
 @http_server.on_event("startup")
 async def startup():
