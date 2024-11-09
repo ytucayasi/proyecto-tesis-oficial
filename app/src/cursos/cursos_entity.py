@@ -1,11 +1,15 @@
 # cursos_entity.py
-from src.config import config  # Importar la configuración que tiene el Base
+from src.config import config
 from sqlalchemy import Integer, String, Text, Enum, DateTime
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 import enum
+from typing import List, TYPE_CHECKING
 
-# Definir los posibles estados para los campos ENUM
+if TYPE_CHECKING:
+    from src.unidad.unidad_entity import UnidadEntity
+    from src.curso_usuario.curso_usuario_entity import CursoUsuarioEntity
+
 class EstadoRecursosEnum(str, enum.Enum):
     completo = "completo"
     parcial = "parcial"
@@ -17,7 +21,7 @@ class EstadoEvaluacionEnum(str, enum.Enum):
     asignacion_p = "asignacion_p"
     regeneracion_p = "regeneracion_p"
 
-class Curso(config.Base):  # Usar config.Base en lugar de crear uno nuevo
+class Curso(config.Base):
     __tablename__ = "cursos"
 
     curso_id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
@@ -29,3 +33,19 @@ class Curso(config.Base):  # Usar config.Base en lugar de crear uno nuevo
     descripcion: Mapped[str] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relaciones
+    unidades: Mapped[List["UnidadEntity"]] = relationship(
+        "UnidadEntity",
+        back_populates="curso",
+        cascade="all, delete-orphan"
+    )
+
+    usuarios: Mapped[List["CursoUsuarioEntity"]] = relationship(
+        "CursoUsuarioEntity",
+        back_populates="curso",
+        cascade="all, delete-orphan"
+    )
+
+    def __repr__(self) -> str:
+        return f"Curso(id={self.curso_id}, nombre='{self.nombre}')"
