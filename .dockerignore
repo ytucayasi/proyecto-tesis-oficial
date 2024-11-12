@@ -3,10 +3,23 @@ __pycache__
 *.pyo
 *.pyd
 .Python
-.env
+# .env
 .git
 .gitignore
 .vscode
 .idea
 tests
 docs
+
+#Adicionales app-genai
+*.env
+*.venv
+*.log
+*.pytest_cache/
+*.coverage
+app-genai/htmlcov/
+app-genai/dist/
+app-genai/build/
+*.egg-info/
+app-genai/summaries/*
+app-genai/chroma_db/*

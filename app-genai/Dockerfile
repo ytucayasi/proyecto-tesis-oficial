@@ -1,31 +1,58 @@
-# Use Python 3.12 image
-FROM python:3.12-slim
+# Use Python 3.11 image instead of 3.12
+FROM python:3.11-slim
 
-# Update the package list and install essential tools
+# Install system dependencies
 RUN apt-get update && \
     apt-get install -y \
-    vim \
-    telnet \
-    inetutils-ping \
     gcc \
+    g++ \
+    git \
+    make \
+    cmake \
+    unzip \
+    wget \
+    python3-dev \
     postgresql-client \
     libpq-dev \
-    python3-dev
+    gfortran \
+    && rm -rf /var/lib/apt/lists/*
 
-# Set the working directory inside the container
+# Set working directory
 WORKDIR /app
 
-# Create and activate a virtual environment
+# Create and activate virtual environment
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
-RUN pip install --no-cache-dir pip==24.0
 
-# Copy requirements first to leverage Docker cache
+# Upgrade pip and install build tools
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel
+
+# Install dependencies in specific order
+RUN pip install --no-cache-dir torch==2.2.0 torchvision==0.17.0 torchaudio==2.2.0 --index-url https://download.pytorch.org/whl/cpu
+RUN pip install --no-cache-dir numpy==1.26.3 scipy==1.11.4 nltk==3.8.1
+RUN pip install --no-cache-dir scikit-learn==1.4.0
+RUN pip install --no-cache-dir transformers==4.37.2 tokenizers==0.15.2 tqdm==4.66.2 huggingface-hub==0.20.3
+RUN pip install --no-cache-dir sentence-transformers==2.2.2
+
+# Install remaining ML dependencies
+RUN pip install --no-cache-dir \
+    safetensors==0.4.2 \
+    accelerate==0.27.2
+
+# Copy requirements and install remaining packages
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the application
+# Create necessary directories
+RUN mkdir -p /app/uploads /app/summaries /app/chroma_db
+
+# Copy application
 COPY . .
 
-# Define the command to run the application
+# Environment variables
+ENV PYTHONPATH=/app
+ENV PYTHONUNBUFFERED=1
+ENV TOKENIZERS_PARALLELISM=true
+
+# Run application
 CMD ["uvicorn", "src.app_module:http_server", "--host", "0.0.0.0", "--port", "8000", "--reload"]
