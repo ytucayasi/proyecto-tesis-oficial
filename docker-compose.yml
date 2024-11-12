@@ -28,8 +28,12 @@ services:
       - POSTGRESQL_USER=${POSTGRESQL_USER}
       - POSTGRESQL_PASSWORD=${POSTGRESQL_PASSWORD}
       - POSTGRESQL_PORT=${POSTGRESQL_PORT}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
     volumes:
       - ./app-genai:/app
+      - app_genai_uploads:/app/uploads
+      - app_genai_summaries:/app/summaries
+      - app_genai_chromadb:/app/chroma_db
     depends_on:
       db:
         condition: service_healthy
@@ -52,3 +56,6 @@ services:
 
 volumes:
   pgdata:
+  app_genai_uploads:
+  app_genai_summaries:
+  app_genai_chromadb:
