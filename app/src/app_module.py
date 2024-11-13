@@ -35,6 +35,7 @@ from src.equivalencia_replicadas.equivalencia_replicadas_module import (
 )
 from src.curso_usuario.curso_usuario_module import CursoUsuarioModule
 from src.historial_recurso.historial_recurso_module import HistorialRecursoModule
+from src.holas.holas_module import HolasModule
 
 
 @Module(
@@ -67,12 +68,14 @@ from src.historial_recurso.historial_recurso_module import HistorialRecursoModul
         EquivalenciaReplicadasModule,
         CursoUsuarioModule,
         HistorialRecursoModule,
+        HolasModule,
     ],
     controllers=[AppController],
     providers=[AppService],
 )
 class AppModule:
     pass
+
 
 app = PyNestFactory.create(
     AppModule,
@@ -82,6 +85,7 @@ app = PyNestFactory.create(
     debug=True,
 )
 http_server = app.get_server()
+
 
 @http_server.on_event("startup")
 async def startup():
