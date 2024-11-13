@@ -1,3 +1,5 @@
 venv/
 app/.env
 *.env
+app-genai/summaries
+app-genai/uploads
