@@ -29,11 +29,13 @@ services:
       - POSTGRESQL_PASSWORD=${POSTGRESQL_PASSWORD}
       - POSTGRESQL_PORT=${POSTGRESQL_PORT}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
     volumes:
       - ./app-genai:/app
       - app_genai_uploads:/app/uploads
-      - app_genai_summaries:/app/summaries
       - app_genai_chromadb:/app/chroma_db
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       db:
         condition: service_healthy
@@ -57,5 +59,4 @@ services:
 volumes:
   pgdata:
   app_genai_uploads:
-  app_genai_summaries:
   app_genai_chromadb:

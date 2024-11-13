@@ -44,7 +44,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Create necessary directories
-RUN mkdir -p /app/uploads /app/summaries /app/chroma_db
+RUN mkdir -p /app/uploads /app/chroma_db
 
 # Copy application
 COPY . .
