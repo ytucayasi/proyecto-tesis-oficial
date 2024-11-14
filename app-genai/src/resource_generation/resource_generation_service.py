@@ -14,6 +14,7 @@ from datetime import datetime
 from .resource_generation_model import ResourceGenerationRequest, ResourceGenerationResponse
 from ..resource.resource_model import Resource
 from ..resource.resource_service import ResourceService
+from .image import get_image_from_pexels
 
 @Injectable()
 class ResourceGenerationService:
@@ -31,7 +32,7 @@ class ResourceGenerationService:
     async def generate_resource(
         self,
         file: UploadFile,
-        titulo: str,
+        titulo: str,  # Cambiado de 'title' a 'titulo'
         modelo: str,
         diseno: int,
         tipo_recurso: str,
@@ -50,22 +51,15 @@ class ResourceGenerationService:
                 with open(input_path, "rb") as f:
                     files = {"file": (file.filename, f, "application/pdf")}
                     data = {
-                        "topic": titulo,
+                        "topic": titulo,  # Usando 'titulo' en lugar de 'title'
                         "model_type": modelo,
                         "temperature": 0.7
                     }
-                    try:
-                        response = await client.post(
-                            self.DOCUMENT_PROCESSING_URL,
-                            files=files,
-                            data=data
-                        )
-                    except httpx.ConnectError as e:
-                        print(f"Error de conexión: {str(e)}")
-                        raise HTTPException(
-                            status_code=500,
-                            detail=f"No se pudo conectar con el servicio de procesamiento de documentos: {str(e)}"
-                        )
+                    response = await client.post(
+                        self.DOCUMENT_PROCESSING_URL,
+                        files=files,
+                        data=data
+                    )
                     
                     if response.status_code != 200:
                         raise HTTPException(
@@ -87,7 +81,7 @@ class ResourceGenerationService:
             # 4. Crear registro en resource
             resource_data = Resource(
                 input_url=input_path,
-                titulo=titulo,
+                titulo=titulo,  # Usando 'titulo' en lugar de 'title'
                 modelo=modelo,
                 diseno=diseno,
                 cantidad_paginas=cantidad_paginas,
@@ -173,36 +167,51 @@ class ResourceGenerationService:
             sections = await self._parse_content(summary_file)
             slide_count = 0
 
-            # Title slide (counts as 1 page)
+            # Título de la presentación
             if slide_count < cantidad_paginas:
                 title_slide = prs.slides.add_slide(prs.slide_layouts[0])
                 title_slide.shapes.title.text = sections['title']
                 slide_count += 1
 
-            # Content slides
+            # Diapositivas de contenido
             for slide_info in sections['slides']:
                 if slide_count >= cantidad_paginas:
                     break
 
-                # Each section header gets its own slide
-                content_slide = prs.slides.add_slide(prs.slide_layouts[random.choice([1, 7, 8, 9])])
+                # Crear una diapositiva de contenido
+                if slide_info['title'].lower() == "introducción":
+                    slide_layout = prs.slide_layouts[1]  # Usar un diseño especial para la introducción
+                else:
+                    slide_layout = prs.slide_layouts[random.choice([1, 7, 8, 9])]  # Usar otros diseños para el contenido
+
+                content_slide = prs.slides.add_slide(slide_layout)
                 content_slide.shapes.title.text = slide_info['title']
-                
-                # Add content to the slide
+
+                # Añadir contenido al slide
                 body_shape = content_slide.shapes.placeholders[1]
                 tf = body_shape.text_frame
                 tf.text = slide_info['content']
-                
-                # Format text
+
+                # Buscar y añadir imagen desde Pexels
+                try:
+                    image_query = slide_info['title']
+                    image_path = await get_image_from_pexels(image_query)
+
+                    # Añadir la imagen en la parte inferior izquierda
+                    content_slide.shapes.add_picture(image_path, Inches(10), Inches(5), width=Inches(3), height=Inches(2))
+                except Exception as e:
+                    print(f"Error adding image: {str(e)}")
+
+                # Formatear texto (manejar viñetas)
                 for paragraph in tf.paragraphs:
                     if paragraph.text.startswith('• '):
                         paragraph.level = 1
                     else:
                         paragraph.level = 0
-                
+
                 slide_count += 1
 
-            # Save the presentation
+            # Guardar la presentación
             output_filename = f"{titulo.replace(' ', '_')}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pptx"
             output_path = os.path.join(self.GENERATED_DIR, output_filename)
             prs.save(output_path)
