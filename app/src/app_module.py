@@ -35,7 +35,7 @@ from src.equivalencia_replicadas.equivalencia_replicadas_module import (
 )
 from src.curso_usuario.curso_usuario_module import CursoUsuarioModule
 from src.historial_recurso.historial_recurso_module import HistorialRecursoModule
-
+from fastapi.middleware.cors import CORSMiddleware
 
 @Module(
     imports=[
@@ -81,7 +81,14 @@ app = PyNestFactory.create(
     version="1.0.0",
     debug=True,
 )
+
 http_server = app.get_server()
+http_server.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:4200"],  # Reemplaza con la URL de tu aplicación Angular
+    allow_methods=["GET", "POST", "PUT", "DELETE"],
+    allow_headers=["Content-Type", "Authorization"],
+)
 
 @http_server.on_event("startup")
 async def startup():
