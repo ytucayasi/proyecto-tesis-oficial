@@ -40,6 +40,21 @@ services:
       db:
         condition: service_healthy
 
+  angular-app:
+    build:
+      context: ./app-angular
+      dockerfile: Dockerfile
+    image: angular-app
+    ports:
+      - "4200:4200"
+    volumes:
+      - ./app-angular:/app
+      - /app/node_modules
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+    command: ng serve --host 0.0.0.0 --poll 2000 --disable-host-check
+
   db:
     image: postgres:16-alpine
     environment:

@@ -1,0 +1,66 @@
+<div *ngIf="isOpen" class="fixed inset-0 z-50 overflow-y-auto">
+    <!-- Backdrop -->
+    <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity" (click)="closeModal()"></div>
+
+    <!-- Modal -->
+    <div class="flex min-h-full items-center justify-center p-4">
+        <div class="relative bg-white rounded-lg shadow-xl w-full max-w-4xl">
+            <!-- Header -->
+            <div class="bg-[#001C48] text-white p-4 rounded-t-lg flex justify-between items-center">
+                <h3 class="text-lg font-semibold">Recursos a Generar</h3>
+                <button type="button" class="hover:bg-[#0B2C5E] p-2 rounded" (click)="closeModal()">
+                    <fa-icon [icon]="faTimes"></fa-icon>
+                </button>
+            </div>
+
+            <!-- Content -->
+            <div class="p-6">
+
+                <!-- Aplica Section -->
+                <div class="mb-8">
+                    <h4 class="text-lg font-bold mb-4">APLICA - Guía Práctica</h4>
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-32 h-32 bg-[#001C48] flex items-center justify-center rounded-lg">
+                                <span class="text-white">TÍTULO</span>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="font-semibold">RECURSO</span>
+                                    <span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm">En
+                                        proceso</span>
+                                </div>
+                                <p>Guía práctica para actividades</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <div class="w-32 h-32 bg-[#001C48] flex items-center justify-center rounded-lg">
+                                <span class="text-white">TÍTULO</span>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="font-semibold">RECURSO</span>
+                                    <span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm">En
+                                        proceso</span>
+                                </div>
+                                <p>Guía práctica para actividades</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="bg-gray-50 px-6 py-4 rounded-b-lg flex justify-end space-x-4">
+                <button type="button" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md"
+                    (click)="closeModal()">
+                    Cancelar
+                </button>
+                <button type="button" class="px-4 py-2 bg-[#001C48] hover:bg-[#0B2C5E] text-white rounded-md"
+                    (click)="onGenerate()">
+                    Generar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

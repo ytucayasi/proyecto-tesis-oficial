@@ -1,0 +1,48 @@
+<div class="flex flex-col h-screen">
+  <!-- Navbar -->
+  <nav class="bg-[#001C48] text-white p-4 flex justify-between items-center">
+    <div class="flex items-center space-x-4">
+      <img src="assets/logo-1.png" alt="LAMB Logo" class="h-8">
+      <div class="flex flex-col justify-center items-center">
+        <span class="text-xl font-bold">LAMB</span>
+        <span class="text-sm">Gen AI</span>
+      </div>
+    </div>
+    <div class="flex items-center space-x-4">
+      <fa-icon [icon]="['fas', 'th-large']" class="text-xl"></fa-icon>
+      <div class="flex items-center space-x-4">
+        <fa-icon [icon]="['fas', 'user']" class="fa-2x"></fa-icon>
+        <div class="flex flex-col justify-center items-start">
+          <span>Julio Marco Limares Coyla</span>
+          <span class="text-sm text-gray-300">Filial - Juliaca</span>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="flex flex-1 overflow-hidden">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white border-r">
+      <div class="p-4">
+        <nav class="space-y-2">
+          <a routerLink="/plan-cursos" routerLinkActive="bg-blue-100"
+            class="flex items-center space-x-2 p-2 rounded-lg hover:bg-blue-50">
+            <fa-icon [icon]="['fas', 'th']" class="text-[#001C48]"></fa-icon>
+            <span>Plan Cursos</span>
+          </a>
+          <a routerLink="/cursos-carga" routerLinkActive="bg-blue-100"
+            class="flex items-center space-x-2 p-2 rounded-lg hover:bg-blue-50">
+            <fa-icon [icon]="['fas', 'book']" class="text-[#001C48]"></fa-icon>
+            <span>Cursos Carga</span>
+          </a>
+        </nav>
+      </div>
+    </aside>
+
+    <!-- Content Area -->
+    <main class="flex-1 p-6 overflow-auto bg-gray-100">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

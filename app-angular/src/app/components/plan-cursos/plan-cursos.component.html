@@ -1,0 +1,181 @@
+<!-- plan-cursos.component.html -->
+<div class="container mx-auto">
+    <!-- Header with back button and title -->
+    <div class="bg-[#001C48] text-white p-4 rounded-t-lg">
+        <div class="flex items-center space-x-2">
+            <button class="hover:bg-[#0B2C5E] p-2 rounded">
+                <fa-icon [icon]="['fas', 'arrow-left']"></fa-icon>
+            </button>
+            <h1>{{ courseInfo.title }}</h1>
+        </div>
+    </div>
+
+    <!-- Details Section -->
+    <div class="bg-[#001C48] text-white p-4 mt-4">
+        <h2 class="font-bold text-center uppercase">Detalles</h2>
+    </div>
+    <div class="bg-white p-6 shadow-sm">
+        <div class="text-center space-y-1">
+            <h3 class="font-bold text-lg">{{ courseInfo.university }}</h3>
+            <p class="text-gray-600">{{ courseInfo.department }}</p>
+            <p class="text-gray-600">{{ courseInfo.office }}</p>
+            <p class="text-gray-600">{{ courseInfo.structure }}</p>
+            <p class="text-gray-600">{{ courseInfo.semester }}</p>
+        </div>
+        <div class="mt-4 space-y-2">
+            <p><span class="font-bold">Unidad:</span> {{ courseInfo.unit }}</p>
+            <p>
+                <span class="font-bold">Sesion:</span> {{ courseInfo.session }}
+                <span class="font-bold ml-4">Fecha:</span> {{ courseInfo.date }}
+                <span class="font-bold ml-4">Tema:</span> {{ courseInfo.topic }}
+            </p>
+        </div>
+    </div>
+
+    <!-- Status Section -->
+    <div class="bg-[#001C48] text-white p-4 mt-4">
+        <h2 class="font-bold text-center uppercase">Estado</h2>
+    </div>
+    <div class="bg-white p-4 flex items-center space-x-8">
+        <div class="flex items-center space-x-2">
+            <div class="w-4 h-4 bg-teal-500 rounded"></div>
+            <span>Recursos Completos</span>
+        </div>
+        <div class="flex items-center space-x-2">
+            <div class="w-4 h-4 bg-orange-400 rounded"></div>
+            <span>Recursos Parcialmente Completado</span>
+        </div>
+        <div class="flex items-center space-x-2">
+            <div class="w-4 h-4 bg-pink-500 rounded"></div>
+            <span>Ningun Recurso</span>
+        </div>
+    </div>
+
+    <!-- Resources Section -->
+    <div class="grid grid-cols-12 gap-6 mt-4">
+        <!-- Left Sidebar -->
+        <div class="col-span-3 flex flex-col gap-6">
+            <div class="bg-white p-4 rounded-lg shadow">
+                <div class="space-y-4">
+                    <div class="flex items-center space-x-2 cursor-pointer rounded-md p-4 hover:bg-[#001C48] hover:text-white"
+                        [ngClass]="{'bg-[#001C48] text-white': activeSection === 'Recursos', 'hover:bg-[#001C48] hover:text-white': true}"
+                        (click)="setActiveSection('Recursos')">
+                        <fa-icon [icon]="['fas', 'chart-line']"></fa-icon>
+                        <span>Recursos</span>
+                    </div>
+                    <div>
+                        <hr>
+                    </div>
+                    <div class="flex items-center space-x-2 cursor-pointer rounded-md p-4 hover:bg-[#001C48] hover:text-white"
+                        [ngClass]="{'bg-[#001C48] text-white': activeSection === 'Evaluaciones', 'hover:bg-[#001C48] hover:text-white': true}"
+                        (click)="setActiveSection('Evaluaciones')">
+                        <fa-icon [icon]="['fas', 'tasks']"></fa-icon>
+                        <span>Evaluaciones</span>
+                    </div>
+                    <div>
+                        <hr>
+                    </div>
+                    <div class="flex flex-col gap-y-4">
+                        <p>Desea subir un libro o información adicional</p>
+                        <p class="text-red-500">* Obligatorio</p>
+                        <input type="file"
+                            class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow">
+                <div class="space-y-4">
+                    <div class="flex flex-col gap-y-4">
+                        <p>Debe seleccionar una plantilla</p>
+                        <div class="grid gap-4">
+                            <ng-container *ngFor="let template of templates">
+                                <label class="flex items-center space-x-3 cursor-pointer">
+                                    <input type="radio" [name]="'plantilla'"
+                                        [id]="'plantilla-' + template.diseno_pdf_id" [value]="template.diseno_pdf_id"
+                                        [(ngModel)]="selectedTemplate" class="hidden peer">
+                                    <div
+                                        class="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center peer-checked:border-indigo-500 transition-all duration-200">
+                                        <div
+                                            class="w-3 h-3 bg-indigo-500 rounded-full opacity-0 peer-checked:opacity-100 transition-opacity duration-200">
+                                        </div>
+                                    </div>
+                                    <span class="text-gray-700">{{ template.nombre }}</span>
+                                </label>
+                            </ng-container>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div *ngIf="activeSection === 'Recursos'" class="col-span-9 flex gap-6">
+            <div class="space-y-6 w-full">
+                <div *ngFor="let section of sections" class="bg-white rounded-lg shadow">
+                    <!-- Cabecera de la sección -->
+                    <div class="bg-[#001C48] text-white p-4 flex justify-between items-center rounded-t-lg">
+                        <h3>{{ section.title }}</h3>
+                        <div class="w-6 h-6 bg-pink-500 rounded"></div>
+                    </div>
+
+                    <!-- Contenido de la sección -->
+                    <div class="px-4 py-6">
+                        <!-- Recursos y checkboxes -->
+                        <div class="flex flex-col space-y-6">
+                            <div class="flex space-x-6">
+                                <div *ngFor="let resource of section.resources" class="flex flex-col space-y-2">
+                                    <!-- Checkbox del recurso -->
+                                    <div class="flex items-center space-x-2">
+                                        <input type="checkbox" [id]="section.id + '-' + resource.type"
+                                            [checked]="isResourceSelected(section.id, resource.type)"
+                                            (change)="toggleResource(section.id, resource.type)"
+                                            class="h-5 w-5 text-blue-600 rounded border-gray-300 focus:ring-2 transition cursor-pointer">
+                                        <label [for]="section.id + '-' + resource.type" class="cursor-pointer">
+                                            {{ resource.type }}
+                                        </label>
+                                    </div>
+
+                                    <!-- Contenido condicional -->
+                                    <div *ngIf="isResourceSelected(section.id, resource.type)"
+                                        class="mt-2 p-4 bg-gray-100 rounded-lg shadow-inner">
+                                        <p class="text-sm text-gray-700">{{ section.id }}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Controles de páginas y plantilla -->
+                            <div class="flex items-center space-x-8 mt-4">
+                                <div class="flex items-center space-x-2">
+                                    <span>Páginas:</span>
+                                    <input type="number" [value]="5" class="w-12 text-center border rounded">
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span>Plantilla:</span>
+                                    <input type="number" [value]="4" class="w-12 text-center border rounded">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-end">
+                    <!-- Botón para iniciar el proceso -->
+                    <button type="button" (click)="startGeneration()"
+                        class="bg-[#001C48] hover:bg-[#0B2C5E] p-4 rounded-md text-white flex items-center gap-2">
+                        <fa-icon [icon]="faPlay"></fa-icon>
+                        <span>Generar Recursos</span>
+                    </button>
+
+                    <!-- Loading Component -->
+                    <app-loading [show]="isLoading"></app-loading>
+
+                    <!-- Modal Component -->
+                    <app-modal-generate [isOpen]="isModalOpen" (close)="closeModal()" (generate)="onGenerate()">
+                    </app-modal-generate>
+                </div>
+            </div>
+        </div>
+        <div *ngIf="activeSection === 'Evaluaciones'">
+            hola
+        </div>
+    </div>
+</div>

@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Restablecer estilo básico sin efectos adicionales */
+
+/* Checkbox sin efectos de hover, focus */
+input[type="checkbox"] {
+    appearance: auto;
+    /* Mantiene la apariencia predeterminada del sistema */
+    margin: 0;
+    /* Elimina cualquier margen extra */
+    outline: none;
+    /* Sin borde extra en focus */
+}
+
+/* Input de número sin efectos de hover, focus */
+input[type="number"] {
+    border: 0;
+    appearance: textfield;
+    /* Mantiene el aspecto básico sin flechas adicionales */
+    outline: none;
+    /* Sin borde extra en focus */
+}
+
+/* Elimina cualquier efecto de hover en checkbox */
+input[type="checkbox"]:hover,
+input[type="checkbox"]:focus {
+    background: none;
+    /* Sin cambio de color de fondo */
+    border: none;
+    /* Sin borde adicional */
+    box-shadow: none;
+    /* Sin sombra adicional */
+}
+
+/* Elimina cualquier efecto de hover en input de número */
+input[type="number"]:hover,
+input[type="number"]:focus {
+    background: none;
+    /* Sin cambio de color de fondo */
+    border: none;
+    /* Sin borde adicional */
+    box-shadow: none;
+    /* Sin sombra adicional */
+}
+
+/* sdadsa */
+/* sdads */
