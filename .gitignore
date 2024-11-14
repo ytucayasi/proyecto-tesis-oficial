@@ -1,5 +1,6 @@
 venv/
 app/.env
 *.env
-app-genai/summaries
-app-genai/uploads
+app-genai/summaries/*
+app-genai/uploads/*
+app-genai/generated_resources/*

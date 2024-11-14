@@ -77,11 +77,5 @@ class SecuenciaAprendizajeEntity(config.Base):
         lazy="select"
     )
 
-    generaciones_recurso: Mapped[List["GeneracionRecursoEntity"]] = relationship(
-        "GeneracionRecursoEntity",
-        back_populates="secuencia_aprendizaje",
-        cascade="all, delete-orphan"
-    )
-
     def __repr__(self) -> str:
         return f"SecuenciaAprendizaje(id={self.secuencia_aprendizaje_id})"

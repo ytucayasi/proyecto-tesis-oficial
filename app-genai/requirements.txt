@@ -16,6 +16,9 @@ openai==1.12.0
 ollama==0.1.6  # Añadido para Llama
 
 # Procesamiento de datos
+# Procesamiento de texto y documentos
+python-docx==1.0.1  # Para generar documentos Word
+httpx>=0.25.2,<0.26.0 
 pandas==2.2.0
 
 # Para manejo de archivos
@@ -24,3 +27,7 @@ python-multipart==0.0.6
 # Backend y API
 fastapi==0.109.2
 uvicorn==0.27.1
+
+
+email-validator
+python-pptx==0.6.21
