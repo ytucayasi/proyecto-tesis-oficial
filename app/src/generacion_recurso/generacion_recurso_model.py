@@ -7,10 +7,9 @@ from .generacion_recurso_entity import TipoDocumento
 class GeneracionRecursoBase(BaseModel):
     input_id: int = Field(..., description="ID del input")
     diseno_id: int = Field(..., description="ID del diseño")
-    secuencia_aprendizaje_id: int = Field(..., description="ID de la secuencia de aprendizaje")
-    usuario_id: int = Field(..., description="ID del usuario")
     numero_paginas: int = Field(..., ge=1, description="Número de páginas")
     tipo_documento: TipoDocumento = Field(..., description="Tipo de documento (word, pdf, ppt)")
+    link_archivo: str
 
     @validator('tipo_documento')
     def lowercase_tipo_documento(cls, v):
@@ -27,10 +26,9 @@ class GeneracionRecurso(GeneracionRecursoBase):
 class UpdateGeneracionRecurso(BaseModel):
     input_id: Optional[int] = None
     diseno_id: Optional[int] = None
-    secuencia_aprendizaje_id: Optional[int] = None
-    usuario_id: Optional[int] = None
     numero_paginas: Optional[int] = Field(None, ge=1)
     tipo_documento: Optional[TipoDocumento] = None
+    link_archivo: Optional[str] = None
 
     @validator('tipo_documento')
     def lowercase_tipo_documento(cls, v):

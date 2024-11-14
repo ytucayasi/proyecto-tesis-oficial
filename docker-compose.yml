@@ -16,6 +16,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    networks:
+      - app-network
 
   pynest-app-genai:
     build: ./app-genai
@@ -32,13 +34,20 @@ services:
       - OLLAMA_BASE_URL=http://host.docker.internal:11434
     volumes:
       - ./app-genai:/app
-      - app_genai_uploads:/app/uploads
       - app_genai_chromadb:/app/chroma_db
+    working_dir: /app
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
       db:
         condition: service_healthy
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   db:
     image: postgres:16-alpine
@@ -55,8 +64,13 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - app-network
 
 volumes:
   pgdata:
-  app_genai_uploads:
   app_genai_chromadb:
+
+networks:
+  app-network:
+    driver: bridge

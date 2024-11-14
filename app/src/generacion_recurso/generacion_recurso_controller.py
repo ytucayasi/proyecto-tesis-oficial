@@ -23,24 +23,8 @@ class GeneracionRecursoController:
         session: AsyncSession = Depends(config.get_db)
     ) -> List[GeneracionRecursoResponse]:
         return await self.generacion_service.get_generaciones(session)
-    
-    @Get("/secuencia/:secuencia_id/")
-    async def get_by_secuencia(
-        self,
-        secuencia_id: int,
-        session: AsyncSession = Depends(config.get_db)
-    ) -> List[GeneracionRecursoResponse]:
-        return await self.generacion_service.get_by_secuencia(secuencia_id, session)
-
-    @Get("/usuario/:usuario_id/")
-    async def get_by_usuario(
-        self,
-        usuario_id: int,
-        session: AsyncSession = Depends(config.get_db)
-    ) -> List[GeneracionRecursoResponse]:
-        return await self.generacion_service.get_by_usuario(usuario_id, session)
         
-    @Get("/:generacion_id/")
+    @Get("/{generacion_id}")
     async def get_generacion(
         self, 
         generacion_id: int, 
@@ -67,7 +51,7 @@ class GeneracionRecursoController:
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
         
-    @Put("/:generacion_id/")
+    @Put("/{generacion_id}")
     async def update_generacion(
         self, 
         generacion_id: int, 
@@ -85,7 +69,7 @@ class GeneracionRecursoController:
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
         
-    @Delete("/:generacion_id/")
+    @Delete("/{generacion_id}")
     async def delete_generacion(
         self, 
         generacion_id: int, 

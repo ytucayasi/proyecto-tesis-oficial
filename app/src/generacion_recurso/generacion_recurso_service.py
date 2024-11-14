@@ -13,27 +13,27 @@ class GeneracionRecursoService:
         result = await session.execute(query)
         return result.scalars().all()
 
-    async def get_by_secuencia(
-        self,
-        secuencia_id: int,
-        session: AsyncSession
-    ) -> List[GeneracionRecursoEntity]:
-        query = select(GeneracionRecursoEntity).where(
-            GeneracionRecursoEntity.secuencia_aprendizaje_id == secuencia_id
-        )
-        result = await session.execute(query)
-        return result.scalars().all()
+    # async def get_by_secuencia(
+    #     self,
+    #     secuencia_id: int,
+    #     session: AsyncSession
+    # ) -> List[GeneracionRecursoEntity]:
+    #     query = select(GeneracionRecursoEntity).where(
+    #         GeneracionRecursoEntity.secuencia_aprendizaje_id == secuencia_id
+    #     )
+    #     result = await session.execute(query)
+    #     return result.scalars().all()
 
-    async def get_by_usuario(
-        self,
-        usuario_id: int,
-        session: AsyncSession
-    ) -> List[GeneracionRecursoEntity]:
-        query = select(GeneracionRecursoEntity).where(
-            GeneracionRecursoEntity.usuario_id == usuario_id
-        )
-        result = await session.execute(query)
-        return result.scalars().all()
+    # async def get_by_usuario(
+    #     self,
+    #     usuario_id: int,
+    #     session: AsyncSession
+    # ) -> List[GeneracionRecursoEntity]:
+    #     query = select(GeneracionRecursoEntity).where(
+    #         GeneracionRecursoEntity.usuario_id == usuario_id
+    #     )
+    #     result = await session.execute(query)
+    #     return result.scalars().all()
 
     async def get_by_id(
         self, 
@@ -61,10 +61,9 @@ class GeneracionRecursoService:
         new_generacion = GeneracionRecursoEntity(
             input_id=generacion.input_id,
             diseno_id=generacion.diseno_id,
-            secuencia_aprendizaje_id=generacion.secuencia_aprendizaje_id,
-            usuario_id=generacion.usuario_id,
             numero_paginas=generacion.numero_paginas,
-            tipo_documento=generacion.tipo_documento
+            tipo_documento=generacion.tipo_documento,
+            link_archivo=generacion.link_archivo
         )
         session.add(new_generacion)
         await session.commit()
