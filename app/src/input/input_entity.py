@@ -15,12 +15,7 @@ class InputEntity(config.Base):
         primary_key=True, 
         autoincrement=True
     )
-    
-    nombre: Mapped[str] = mapped_column(
-        String(255), 
-        nullable=False
-    )
-    
+
     link_archivo: Mapped[str] = mapped_column(
         String(255), 
         nullable=False
@@ -45,6 +40,6 @@ class InputEntity(config.Base):
         back_populates="input",
         cascade="all, delete-orphan"
     )
-
+    
     def __repr__(self) -> str:
-        return f"Input(input_id={self.input_id}, nombre='{self.nombre}')"
+        return f"Input(input_id={self.input_id})"

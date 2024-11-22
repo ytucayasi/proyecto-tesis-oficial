@@ -44,7 +44,13 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Create necessary directories
-RUN mkdir -p /app/uploads /app/chroma_db
+RUN mkdir -p /app/chroma_db
+
+# Install LibreOffice
+RUN apt-get update && apt-get install -y \
+    libreoffice \
+    --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy application
 COPY . .

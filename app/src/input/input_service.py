@@ -26,7 +26,6 @@ class InputService:
 
     async def create_input(self, input_data: Input, session: AsyncSession) -> InputEntity:
         new_input = InputEntity(
-            nombre=input_data.nombre,
             link_archivo=input_data.link_archivo
         )
         session.add(new_input)

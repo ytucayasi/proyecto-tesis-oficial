@@ -9,7 +9,6 @@ from typing import List, TYPE_CHECKING
 if TYPE_CHECKING:
     from src.input.input_entity import InputEntity
     from src.diseno_pdf.diseno_pdf_entity import DisenoPdfEntity
-    from src.secuencia_aprendizaje.secuencia_aprendizaje_entity import SecuenciaAprendizajeEntity
     from src.historial_recurso.historial_recurso_entity import HistorialRecursoEntity
 
 class TipoDocumento(str, enum.Enum):
@@ -38,18 +37,6 @@ class GeneracionRecursoEntity(config.Base):
         nullable=False
     )
     
-    secuencia_aprendizaje_id: Mapped[int] = mapped_column(
-        Integer,
-        ForeignKey("secuencia_aprendizaje.secuencia_aprendizaje_id", ondelete="CASCADE"),
-        nullable=False
-    )
-    
-    usuario_id: Mapped[int] = mapped_column(
-        Integer,
-        ForeignKey("usuarios.usuario_id", ondelete="CASCADE"),
-        nullable=False
-    )
-    
     numero_paginas: Mapped[int] = mapped_column(
         Integer,
         nullable=False
@@ -57,6 +44,11 @@ class GeneracionRecursoEntity(config.Base):
     
     tipo_documento: Mapped[TipoDocumento] = mapped_column(
         Enum(TipoDocumento, name='tipodocumento', create_type=False),
+        nullable=False
+    )
+
+    link_archivo: Mapped[str] = mapped_column(
+        String(255), 
         nullable=False
     )
     
@@ -82,12 +74,6 @@ class GeneracionRecursoEntity(config.Base):
 
     diseno: Mapped["DisenoPdfEntity"] = relationship(
         "DisenoPdfEntity",
-        back_populates="generaciones_recurso",
-        lazy="select"
-    )
-
-    secuencia_aprendizaje: Mapped["SecuenciaAprendizajeEntity"] = relationship(
-        "SecuenciaAprendizajeEntity",
         back_populates="generaciones_recurso",
         lazy="select"
     )

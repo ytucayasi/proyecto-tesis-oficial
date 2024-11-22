@@ -78,7 +78,7 @@
                     <div class="flex flex-col gap-y-4">
                         <p>Desea subir un libro o información adicional</p>
                         <p class="text-red-500">* Obligatorio</p>
-                        <input type="file"
+                        <input type="file" (change)="onFileSelected($event)"
                             class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                     </div>
                 </div>
@@ -86,22 +86,29 @@
             <div class="bg-white p-4 rounded-lg shadow">
                 <div class="space-y-4">
                     <div class="flex flex-col gap-y-4">
-                        <p>Debe seleccionar una plantilla</p>
+                        <p>Seleccionar Modelo</p>
                         <div class="grid gap-4">
-                            <ng-container *ngFor="let template of templates">
-                                <label class="flex items-center space-x-3 cursor-pointer">
-                                    <input type="radio" [name]="'plantilla'"
-                                        [id]="'plantilla-' + template.diseno_pdf_id" [value]="template.diseno_pdf_id"
-                                        [(ngModel)]="selectedTemplate" class="hidden peer">
-                                    <div
-                                        class="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center peer-checked:border-indigo-500 transition-all duration-200">
-                                        <div
-                                            class="w-3 h-3 bg-indigo-500 rounded-full opacity-0 peer-checked:opacity-100 transition-opacity duration-200">
-                                        </div>
-                                    </div>
-                                    <span class="text-gray-700">{{ template.nombre }}</span>
-                                </label>
-                            </ng-container>
+                            <select [(ngModel)]="selectedModelo"
+                                class="w-full p-2 border border-gray-300 rounded-md text-gray-700 focus:outline-none focus:border-blue-500">
+                                <option *ngFor="let modelo of modelos" [ngValue]="modelo">
+                                    {{ modelo.nombre }}
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow">
+                <div class="space-y-4">
+                    <div class="flex flex-col gap-y-4">
+                        <p>Seleccionar Plantilla</p>
+                        <div class="grid gap-4">
+                            <select [(ngModel)]="selectedPlantilla"
+                                class="w-full p-2 border border-gray-300 rounded-md text-gray-700 focus:outline-none focus:border-blue-500">
+                                <option *ngFor="let plantilla of plantillas" [ngValue]="plantilla">
+                                    {{ plantilla.nombre }}
+                                </option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -169,7 +176,7 @@
                     <app-loading [show]="isLoading"></app-loading>
 
                     <!-- Modal Component -->
-                    <app-modal-generate [isOpen]="isModalOpen" (close)="closeModal()" (generate)="onGenerate()">
+                    <app-modal-generate [isOpen]="isModalOpen" [resourceResponse]="resourceResponse" (close)="closeModal()" (generate)="onGenerate()">
                     </app-modal-generate>
                 </div>
             </div>

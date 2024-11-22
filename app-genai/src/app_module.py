@@ -4,9 +4,12 @@ from .app_controller import AppController
 from .app_service import AppService
 from src.document_processing.document_processing_module import DocumentProcessingModule
 from fastapi.middleware.cors import CORSMiddleware
+from src.resource_generation.resource_generation_module import ResourceGenerationModule
+from src.resource.resource_module import ResourceModule
+            
 
 @Module(
-    imports=[DocumentProcessingModule],
+    imports=[DocumentProcessingModule, ResourceGenerationModule, ResourceModule],
     controllers=[AppController],
     providers=[AppService],
 )
