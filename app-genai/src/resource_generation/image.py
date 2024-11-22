@@ -47,48 +47,36 @@ class ImageGenerator:
         
         return f"{base_prompt}, {selected_style}"
 
-    async def query_with_retry(self, payload: dict, max_retries: int = 5) -> bytes:
+    async def query_with_retry(self, payload: dict, max_retries: int = 8) -> bytes:
         """Consulta la API con reintentos y manejo de cola"""
         for attempt in range(max_retries):
             try:
-                async with httpx.AsyncClient(timeout=30.0) as client:
+                async with httpx.AsyncClient(timeout=60.0) as client:  # Aumentado a 60 segundos
                     response = await client.post(
                         self.API_URL,
                         headers=self.headers,
                         json=payload
                     )
 
-                    # Si el modelo está cargando o en cola
-                    if response.status_code == 503:
-                        response_json = response.json()
-                        if "estimated_time" in response_json:
-                            wait_time = response_json["estimated_time"]
-                            print(f"Modelo en cola, esperando {wait_time} segundos...")
-                            await asyncio.sleep(wait_time)
-                            continue
-                
-                    # Si la respuesta es exitosa
                     if response.status_code == 200:
                         return response.content
 
-                    # Otros errores
+                    if response.status_code == 503:
+                        response_json = response.json()
+                        wait_time = response_json.get("estimated_time", 20)  # Default 20 segundos
+                        print(f"Modelo en cola, esperando {wait_time} segundos... (Intento {attempt + 1}/{max_retries})")
+                        await asyncio.sleep(wait_time + 5)  # Añadimos 5 segundos extra
+                        continue
+
                     response.raise_for_status()
 
             except (httpx.ReadTimeout, httpx.ReadError) as e:
-                wait_time = 2 ** attempt  # Espera exponencial
-                print(f"Timeout en intento {attempt + 1}, esperando {wait_time} segundos...")
                 if attempt < max_retries - 1:
+                    wait_time = min(30, 2 ** attempt)  # Máximo 30 segundos de espera
+                    print(f"Timeout en intento {attempt + 1}, esperando {wait_time} segundos...")
                     await asyncio.sleep(wait_time)
                     continue
-                else:
-                    raise Exception(f"Tiempo de espera agotado después de {max_retries} intentos") from e
-
-            except Exception as e:
-                print(f"Error en intento {attempt + 1}: {str(e)}")
-                if attempt < max_retries - 1:
-                    await asyncio.sleep(2 ** attempt)
-                    continue
-                raise
+                raise Exception(f"Tiempo de espera agotado después de {max_retries} intentos") from e
 
         raise Exception("Máximo número de intentos alcanzado")
 
