@@ -14,7 +14,7 @@ from datetime import datetime
 from .resource_generation_model import ResourceGenerationRequest, ResourceGenerationResponse
 from ..resource.resource_model import Resource
 from ..resource.resource_service import ResourceService
-from .image import get_image_from_pexels
+from .image import get_image_for_presentation
 
 @Injectable()
 class ResourceGenerationService:
@@ -166,24 +166,31 @@ class ResourceGenerationService:
             prs = Presentation(template_path)
             sections = await self._parse_content(summary_file)
             slide_count = 0
+            images = []
 
-            # Título de la presentación
-            if slide_count < cantidad_paginas:
-                title_slide = prs.slides.add_slide(prs.slide_layouts[0])
-                title_slide.shapes.title.text = sections['title']
-                slide_count += 1
+            # Generar dos imágenes diferentes
+            print("Generando primera imagen...")
+            image1 = await get_image_for_presentation(f"{titulo} - first perspective")
+            if image1:
+                images.append(image1)
+
+            print("Generando segunda imagen...")
+            image2 = await get_image_for_presentation(f"{titulo} - second perspective")
+            if image2:
+                images.append(image2)
+
+            # Primera diapositiva (título)
+            title_slide = prs.slides.add_slide(prs.slide_layouts[0])
+            title_slide.shapes.title.text = sections['title']
+            slide_count = 1
 
             # Diapositivas de contenido
-            for slide_info in sections['slides']:
+            for i, slide_info in enumerate(sections['slides']):
                 if slide_count >= cantidad_paginas:
                     break
 
                 # Crear una diapositiva de contenido
-                if slide_info['title'].lower() == "introducción":
-                    slide_layout = prs.slide_layouts[1]  # Usar un diseño especial para la introducción
-                else:
-                    slide_layout = prs.slide_layouts[random.choice([1, 7, 8, 9])]  # Usar otros diseños para el contenido
-
+                slide_layout = prs.slide_layouts[1] if slide_info['title'].lower() == "introducción" else prs.slide_layouts[random.choice([1, 7, 8, 9])]
                 content_slide = prs.slides.add_slide(slide_layout)
                 content_slide.shapes.title.text = slide_info['title']
 
@@ -192,17 +199,21 @@ class ResourceGenerationService:
                 tf = body_shape.text_frame
                 tf.text = slide_info['content']
 
-                # Buscar y añadir imagen desde Pexels
-                try:
-                    image_query = slide_info['title']
-                    image_path = await get_image_from_pexels(image_query)
+                # Añadir imagen en las diapositivas 1 y 3 (segunda y cuarta página contando la portada)
+                if slide_count in [1, 3] and len(images) > 0:
+                    try:
+                        # Usar la primera imagen para la diapositiva 1 y la segunda para la 3
+                        image_index = 0 if slide_count == 1 else 1
+                        if image_index < len(images):
+                            content_slide.shapes.add_picture(
+                                images[image_index],
+                                Inches(10), Inches(5),
+                                width=Inches(3), height=Inches(2)
+                            )
+                    except Exception as e:
+                        print(f"Error adding image to slide {slide_count}: {str(e)}")
 
-                    # Añadir la imagen en la parte inferior izquierda
-                    content_slide.shapes.add_picture(image_path, Inches(10), Inches(5), width=Inches(3), height=Inches(2))
-                except Exception as e:
-                    print(f"Error adding image: {str(e)}")
-
-                # Formatear texto (manejar viñetas)
+                # Formatear texto
                 for paragraph in tf.paragraphs:
                     if paragraph.text.startswith('• '):
                         paragraph.level = 1
@@ -211,10 +222,17 @@ class ResourceGenerationService:
 
                 slide_count += 1
 
-            # Guardar la presentación
+            # Guardar la presentación y limpiar imágenes
             output_filename = f"{titulo.replace(' ', '_')}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pptx"
             output_path = os.path.join(self.GENERATED_DIR, output_filename)
             prs.save(output_path)
+
+            # Limpiar imágenes generadas
+            for image_path in images:
+                try:
+                    os.remove(image_path)
+                except Exception as e:
+                    print(f"Error cleaning up image {image_path}: {str(e)}")
 
             return output_path
 

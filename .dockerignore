@@ -23,3 +23,10 @@ app-genai/build/
 *.egg-info/
 app-genai/summaries/*
 app-genai/chroma_db/*
+
+
+# gen image
+model_cache/
+generated_resources/
+__pycache__/
+*.pyc

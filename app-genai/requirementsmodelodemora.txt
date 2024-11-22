@@ -29,6 +29,10 @@ uvicorn==0.27.1
 email-validator
 python-pptx==0.6.21
 
-# Para generación de imágenes y traducción
-Pillow==10.2.0
-deep-translator==1.11.4
+# Nuevas dependencias para generación de imágenes
+torch==2.1.2
+torchvision==0.16.2
+diffusers==0.25.0
+transformers==4.36.2
+accelerate==0.25.0
+pillow==10.2.0

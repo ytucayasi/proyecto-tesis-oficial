@@ -1,59 +1,144 @@
-import httpx
 import os
-from dotenv import load_dotenv
-from pptx import Presentation
-from pptx.util import Inches
+import httpx
+from typing import Optional
 from datetime import datetime
+import asyncio
+from deep_translator import GoogleTranslator
+import time
+import json
+import random  # Añadimos esta importación
 
-# Cargar las variables de entorno desde el archivo .env
-load_dotenv()
+class ImageGenerator:
+    def __init__(self):
+        self.GENERATED_DIR = "generated_resources"
+        self.translator = GoogleTranslator(source='auto', target='en')
+        self.API_URL = "https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-dev"
+        self.headers = {"Authorization": f"Bearer {os.getenv('HUGGINGFACE_API_KEY')}"}
+        os.makedirs(self.GENERATED_DIR, exist_ok=True)
 
-# Obtener la clave de API de Pexels desde las variables de entorno
-PEXELS_API_KEY = os.getenv('PEXELS_API_KEY')  # Cargamos la clave de la API desde el entorno
-PEXELS_URL = 'https://api.pexels.com/v1/search'
+    async def translate_to_english(self, text: str) -> str:
+        try:
+            def translate():
+                return self.translator.translate(text)
+            return await asyncio.get_event_loop().run_in_executor(None, translate)
+        except Exception as e:
+            print(f"Error en traducción: {str(e)}")
+            return text
 
-# Función para obtener una imagen de Pexels
-async def get_image_from_pexels(query: str) -> str:
-    try:
-        # Verificar si la clave de API está disponible
-        if not PEXELS_API_KEY:
-            raise ValueError("PEXELS_API_KEY no está configurada en las variables de entorno")
-
-        headers = {
-            'Authorization': PEXELS_API_KEY
-        }
-
-        # Asegúrate de que el query no tenga caracteres extraños
-        query = query.strip()  # Eliminar posibles espacios extra al principio y al final
-        print(f"Buscando imágenes para: {query}")  # Depuración para ver qué query se está enviando
-
-        params = {
-            'query': query,  # Usar el título del slide como query
-            'per_page': 1  # Limitar a 1 imagen por búsqueda
-        }
-
-        async with httpx.AsyncClient() as client:
-            response = await client.get(PEXELS_URL, headers=headers, params=params)
-
-        if response.status_code == 200:
-            data = response.json()
-            if data['photos']:
-                # Obtén la URL de la imagen más relevante
-                image_url = data['photos'][0]['src']['original']
-                image_filename = os.path.basename(image_url)
-                image_path = os.path.join('generated_resources', image_filename)
-
-                # Descargar la imagen
-                async with httpx.AsyncClient() as client:
-                    image_response = await client.get(image_url)
-                    with open(image_path, 'wb') as f:
-                        f.write(image_response.content)
-
-                return image_path
-            else:
-                raise Exception(f"No se encontraron imágenes para el query: {query}")
+    def _enhance_prompt(self, title: str, variation: str = "") -> str:
+        """Mejora el prompt para generar imágenes más realistas y detalladas con variaciones"""
+        if variation:
+            # Si es una sección específica, adaptamos el prompt
+            base_prompt = f"{title} - {variation}"
         else:
-            raise Exception(f"Error fetching images: {response.status_code}")
+            base_prompt = title
+            
+        # Añadir variedad en el estilo y la composición
+        style_variations = [
+            "photographic style, realistic, detailed, 8k quality",
+            "cinematic composition, dramatic lighting, high detail",
+            "professional photograph, artistic composition, vibrant",
+            "documentary style, natural lighting, detailed view",
+            "artistic interpretation, professional quality, detailed render"
+        ]
+        
+        # Seleccionar una variación de estilo aleatoria
+        selected_style = random.choice(style_variations)
+        
+        return f"{base_prompt}, {selected_style}"
 
+    async def query_with_retry(self, payload: dict, max_retries: int = 5) -> bytes:
+        """Consulta la API con reintentos y manejo de cola"""
+        for attempt in range(max_retries):
+            try:
+                async with httpx.AsyncClient(timeout=30.0) as client:
+                    response = await client.post(
+                        self.API_URL,
+                        headers=self.headers,
+                        json=payload
+                    )
+
+                    # Si el modelo está cargando o en cola
+                    if response.status_code == 503:
+                        response_json = response.json()
+                        if "estimated_time" in response_json:
+                            wait_time = response_json["estimated_time"]
+                            print(f"Modelo en cola, esperando {wait_time} segundos...")
+                            await asyncio.sleep(wait_time)
+                            continue
+                
+                    # Si la respuesta es exitosa
+                    if response.status_code == 200:
+                        return response.content
+
+                    # Otros errores
+                    response.raise_for_status()
+
+            except (httpx.ReadTimeout, httpx.ReadError) as e:
+                wait_time = 2 ** attempt  # Espera exponencial
+                print(f"Timeout en intento {attempt + 1}, esperando {wait_time} segundos...")
+                if attempt < max_retries - 1:
+                    await asyncio.sleep(wait_time)
+                    continue
+                else:
+                    raise Exception(f"Tiempo de espera agotado después de {max_retries} intentos") from e
+
+            except Exception as e:
+                print(f"Error en intento {attempt + 1}: {str(e)}")
+                if attempt < max_retries - 1:
+                    await asyncio.sleep(2 ** attempt)
+                    continue
+                raise
+
+        raise Exception("Máximo número de intentos alcanzado")
+
+    async def generate_image(self, titulo: str) -> Optional[str]:
+        """Genera una imagen usando la API de Hugging Face"""
+        try:
+            english_title = await self.translate_to_english(titulo)
+            print(f"Título traducido: {english_title}")
+
+            # Si el título contiene un guion, es una sección específica
+            if " - " in titulo:
+                base_title, section = titulo.split(" - ", 1)
+                prompt = self._enhance_prompt(english_title, variation="")
+            else:
+                prompt = self._enhance_prompt(english_title)
+
+            print(f"Generando imagen con prompt: {prompt}")
+
+            payload = {
+                "inputs": prompt
+            }
+
+            print("Iniciando generación de imagen...")
+            image_data = await self.query_with_retry(payload)
+            print("Imagen generada exitosamente")
+
+            # Guardar la imagen
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            filename = f"{titulo.replace(' ', '_')}_{timestamp}.png"
+            filepath = os.path.join(self.GENERATED_DIR, filename)
+
+            with open(filepath, "wb") as f:
+                f.write(image_data)
+
+            print(f"Imagen guardada en: {filepath}")
+            return filepath
+
+        except Exception as e:
+            print(f"Error generando imagen: {str(e)}")
+            import traceback
+            print(f"Traceback completo: {traceback.format_exc()}")
+            return None
+
+# Instancia global del generador
+generator = ImageGenerator()
+
+async def get_image_for_presentation(titulo: str) -> Optional[str]:
+    """Función principal para generar imágenes para presentaciones"""
+    try:
+        return await generator.generate_image(titulo)
     except Exception as e:
-        raise Exception(f"Error during Pexels API call: {str(e)}")
+        print(f"Error en la generación de imagen: {str(e)}")
+        return None
